@@ -1,0 +1,26 @@
+{
+    "packages": [
+        {
+            "name": "Open Audio",
+            "description": "singleton audio manager for unity",
+            "packageName": "OpenAudio",
+            "version": "1.0.0",
+            "author": "omid3098"
+        },
+        {
+            "name": "Open Terminal",
+            "description": "Open Terminal to execute commands at runtime",
+            "packageName": "OpenTerminal",
+            "version": "1.0.0",
+            "author": "omid3098"
+        },
+        {
+            "name": "DoTween",
+            "description": "Tween library",
+            "packageName": "dotween",
+            "version": "v1.1.695",
+            "author": "Demigiant"
+        }
+    ],
+    "server": "https://github.com/"
+}
