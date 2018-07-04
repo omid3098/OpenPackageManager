@@ -1,4 +1,4 @@
-namespace OpenFramework.Editor
+namespace OpenPackageManager.Editor
 {
     using UnityEngine;
     using UnityEditor;
@@ -8,9 +8,9 @@ namespace OpenFramework.Editor
     using System.IO;
     using System.Collections.Generic;
 
-    class OpenFrameworkWindow : EditorWindow
+    class OpenPackageManagerWindow : EditorWindow
     {
-        private static OpenFrameworkResources repositoryResource;
+        // private static OpenPackageManagerConfig openPackageManagerConfig;
         private static RepositoryItem repositoryItem;
         private static string saveDirectory;
         private static GUILayoutOption buttonWidth;
@@ -18,14 +18,33 @@ namespace OpenFramework.Editor
         private static Texture2D lineTexture;
         private static GUIStyle linkButtonStyle;
         private string filter;
-        private List<RepositoryPackage> showingPackages;
+        private static bool updating = false;
+        private static List<RepositoryPackage> showingPackages;
+        private static bool initialized = false;
 
-        [MenuItem("Window/OpenPackageManager")]
+        [MenuItem("Window/Open Package Manager")]
         public static void ShowWindow()
         {
-            repositoryResource = Resources.Load<OpenFrameworkResources>("repository");
-            repositoryItem = JsonUtility.FromJson<RepositoryItem>(repositoryResource.repository.text);
-            saveDirectory = Application.dataPath + "/OpenFrameworkPackages/";
+            var window = EditorWindow.GetWindow(typeof(OpenPackageManagerWindow));
+            window.titleContent = new GUIContent("Open Package Manager");
+        }
+
+        private static void Initialize()
+        {
+            // openPackageManagerConfig = Resources.Load<OpenPackageManagerConfig>("config");
+            saveDirectory = Application.dataPath + OpenPackageManagerConfig.DownloadDirectory;
+            Debug.Log(saveDirectory);
+            if (!Directory.Exists(saveDirectory))
+            {
+                Debug.Log("Directory does not exist: " + saveDirectory);
+                Directory.CreateDirectory(saveDirectory);
+                AssetDatabase.Refresh();
+            }
+            else
+            {
+                Debug.Log("Directory exists ");
+            }
+
             buttonWidth = GUILayout.Width(100);
             buttonHeight = GUILayout.Height(30);
             lineTexture = new Texture2D(1, 1);
@@ -34,27 +53,40 @@ namespace OpenFramework.Editor
             linkButtonStyle.normal.textColor = Color.blue;
             linkButtonStyle.stretchWidth = true;
 
-            var window = EditorWindow.GetWindow(typeof(OpenFrameworkWindow));
-            window.titleContent = new GUIContent("Open Package Manager");
+            initialized = true;
         }
+
         void OnGUI()
         {
-            GUILayout.Label("Packages", EditorStyles.boldLabel);
-            SearchBar();
-
-            if (string.IsNullOrEmpty(filter)) showingPackages = repositoryItem.packages;
-            else showingPackages = repositoryItem.packages.FindAll(x => x.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
-
-            foreach (var package in showingPackages)
+            if (!initialized)
+                Initialize();
+            if (repositoryItem == null)
             {
-                DrawPackage(package);
+                if (updating == false)
+                {
+                    EditorCoroutine.start(DownloadRepository());
+                    updating = true;
+                }
+                DrawLoading();
             }
-            // myString = EditorGUILayout.TextField("Text Field", myString);
+            else
+            {
+                GUILayout.Label("Packages", EditorStyles.boldLabel);
+                SearchBar();
 
-            // groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
-            // myBool = EditorGUILayout.Toggle("Toggle", myBool);
-            // myFloat = EditorGUILayout.Slider("Slider", myFloat, -3, 3);
-            // EditorGUILayout.EndToggleGroup();
+                if (string.IsNullOrEmpty(filter)) showingPackages = repositoryItem.packages;
+                else showingPackages = repositoryItem.packages.FindAll(x => x.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                foreach (var package in showingPackages)
+                {
+                    DrawPackage(package);
+                }
+            }
+        }
+
+        private void DrawLoading()
+        {
+            EditorGUILayout.LabelField("Loading...", GUILayout.ExpandWidth(false));
         }
 
         private void SearchBar()
@@ -117,12 +149,28 @@ namespace OpenFramework.Editor
                     Debug.Log("Finished...");
                 }
             }
-            if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
-            string fullPath = saveDirectory + package.packageName + ".zip";
+            string fullPath = saveDirectory + "/" + package.packageName + ".zip";
             Debug.Log(fullPath);
             File.WriteAllBytes(fullPath, downloadFile.bytes);
             ZipUtil.Unzip(fullPath, saveDirectory);
             AssetDatabase.Refresh();
+        }
+
+        static IEnumerator DownloadRepository()
+        {
+            WWW downloadFile = new WWW(OpenPackageManagerConfig.RepositoryLink);
+            //shows download progress
+            while (!downloadFile.isDone)
+            {
+                Debug.Log("updating repository...");
+                yield return null;
+                if (downloadFile.isDone)
+                {
+                    Debug.Log("updated...");
+                }
+            }
+            repositoryItem = JsonUtility.FromJson<RepositoryItem>(downloadFile.text);
+            updating = false;
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace OpenFramework.Editor
+namespace OpenPackageManager.Editor
 {
     using UnityEditor;
     using System.Collections;

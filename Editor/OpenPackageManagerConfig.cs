@@ -1,10 +1,12 @@
-namespace OpenFramework.Editor
+namespace OpenPackageManager.Editor
 {
     using System.Collections.Generic;
     using UnityEngine;
-    public class OpenFrameworkResources : ScriptableObject
+
+    public class OpenPackageManagerConfig
     {
-        public TextAsset repository;
+        public static string DownloadDirectory = @"/Scripts/OpenPackageManager/packages/downloads";
+        public static string RepositoryLink = "https://raw.githubusercontent.com/omid3098/OpenPackageManager/master/packages/repository.json";
     }
 
     [System.Serializable]
