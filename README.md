@@ -16,7 +16,6 @@ you can compare [a valid repository](https://github.com/omid3098/OpenAudio) with
 
 ![image](https://user-images.githubusercontent.com/6388730/42286418-10a8bf78-7fc8-11e8-94e7-318a7afa3525.png)
 
-- you nees to have at least one release in your repository. [(how to create releases)](https://help.github.com/articles/creating-releases)
 - create new issue with these info:
 
 issue title: [NewPackage] Package name
