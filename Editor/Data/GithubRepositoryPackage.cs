@@ -1,52 +1,15 @@
 namespace OpenPackageManager.Editor
 {
     using System;
-    using System.Collections.Generic;
 
     [System.Serializable]
-    public class RepositoryItem
-    {
-        public List<string> standardPackages;
-        public List<RepositoryPackage> packages;
-        public string server;
-        public RepositoryItem()
-        {
-            packages = new List<RepositoryPackage>();
-            standardPackages = new List<string>();
-        }
-    }
-
-    [System.Serializable]
-    public class Owner
-    {
-        public string login;
-        public int id;
-        public string node_id;
-        public string avatar_url;
-        public string gravatar_id;
-        public string url;
-        public string html_url;
-        public string followers_url;
-        public string following_url;
-        public string gists_url;
-        public string starred_url;
-        public string subscriptions_url;
-        public string organizations_url;
-        public string repos_url;
-        public string events_url;
-        public string received_events_url;
-        public string type;
-        public bool site_admin;
-    }
-
-    [System.Serializable]
-    public class RepositoryPackage
+    public class GithubPackage
     {
         public int id;
         public string node_id;
         public string name;
         public string full_name;
-        public Owner owner;
+        public GithubOwner owner;
         public bool @private;
         public string html_url;
         public string description;

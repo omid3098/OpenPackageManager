@@ -2,7 +2,6 @@ namespace OpenPackageManager.Editor
 {
     using UnityEngine;
     using UnityEditor;
-    using OpenConnectionTools;
     using System.Collections.Generic;
     using System;
 
@@ -11,14 +10,16 @@ namespace OpenPackageManager.Editor
         private static Texture2D lineTexture;
         private static GUIStyle linkButtonStyle;
         private string filter;
-        private static List<RepositoryPackage> showingPackages;
+        private static List<GithubPackage> showingPackages;
         private static GUILayoutOption buttonWidth;
         private static GUILayoutOption buttonHeight;
         private List<string> downloadingPackages;
         private float downloadProgress;
+        private OpenPackageManagerController controller;
 
-        public OpenPackageManagerDrawer()
+        public OpenPackageManagerDrawer(OpenPackageManagerController openPackageManagerWindow)
         {
+            this.controller = openPackageManagerWindow;
             downloadingPackages = new List<string>();
 
             buttonWidth = GUILayout.Width(100);
@@ -34,8 +35,8 @@ namespace OpenPackageManager.Editor
         {
             GUILayout.Label("Packages", EditorStyles.boldLabel);
             SearchBar();
-            if (string.IsNullOrEmpty(filter)) showingPackages = OpenPackageManagerWindow.allPackages;
-            else showingPackages = OpenPackageManagerWindow.allPackages.FindAll(x => x.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (string.IsNullOrEmpty(filter)) showingPackages = controller.allPackages;
+            else showingPackages = controller.allPackages.FindAll(x => x.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
 
             foreach (var package in showingPackages)
             {
@@ -48,7 +49,7 @@ namespace OpenPackageManager.Editor
             GUILayout.Box(lineTexture, GUILayout.ExpandWidth(true), GUILayout.Height(1));
         }
 
-        private void DrawPackage(RepositoryPackage package)
+        private void DrawPackage(GithubPackage package)
         {
             { // Draw package name, version, author and description 
                 EditorGUILayout.BeginHorizontal();
@@ -58,9 +59,9 @@ namespace OpenPackageManager.Editor
                         EditorGUILayout.BeginHorizontal();
                         {
                             EditorGUILayout.LabelField(package.name, EditorStyles.boldLabel);
-                            if (GUILayout.Button("Author: " + package.owner.login, linkButtonStyle)) Application.OpenURL(OpenPackageManagerWindow.repository.server + package.owner.login);
-                            if (GUILayout.Button("Source", linkButtonStyle)) Application.OpenURL(OpenPackageManagerWindow.repository.server + package.full_name);
-                            EditorGUILayout.LabelField("Size: " + StringTools.GetBytesReadable(package.size*1000));
+                            if (GUILayout.Button("Author: " + package.owner.login, linkButtonStyle)) Application.OpenURL(controller.repository.server + package.owner.login);
+                            if (GUILayout.Button("Source", linkButtonStyle)) Application.OpenURL(controller.repository.server + package.full_name);
+                            EditorGUILayout.LabelField("Size: " + StringTools.GetBytesReadable(package.size * 1000));
                         }
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.LabelField("Description: " + package.description);
